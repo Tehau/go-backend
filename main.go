@@ -8,18 +8,6 @@ import (
 	"time"
 )
 
-type fooHandler struct {
-	Message string
-}
-
-func (f *fooHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(f.Message))
-}
-
-func barHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("bar called"))
-}
-
 type CharacterNodes struct {
 	CharacterNodes []Character `json:"results"`
 }
@@ -45,6 +33,18 @@ type Character struct {
 	Created time.Time `json:"created"`
 }
 
+type fooHandler struct {
+	Message string
+}
+
+func (f *fooHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte(f.Message))
+}
+
+func barHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("bar called"))
+}
+
 func main() {
 	jsonFile, err := os.Open("data/rickandmortycharacter.json")
 
@@ -54,6 +54,9 @@ func main() {
 	}
 	data := CharacterNodes{}
 	err = json.NewDecoder(jsonFile).Decode(&data)
+	if err != nil {
+		fmt.Println(err)
+	}
 	for i := 0; i < len(data.CharacterNodes); i++ {
 		fmt.Println("Name: ", data.CharacterNodes[i].Name)
 		fmt.Println("Status: ", data.CharacterNodes[i].Status)
