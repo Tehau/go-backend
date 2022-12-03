@@ -20,6 +20,10 @@ func barHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("bar called"))
 }
 
+type CharacterNodes struct {
+	CharacterNodes []Character `json:"results"`
+}
+
 type Character struct {
 	Id      int    `json:"id"`
 	Name    string `json:"name"`
@@ -43,13 +47,17 @@ type Character struct {
 
 func main() {
 	jsonFile, err := os.Open("data/rickandmortycharacter.json")
+
 	// if we os.Open returns an error then handle it
 	if err != nil {
 		fmt.Println(err)
 	}
-	var ListCharacter = []Character
-	err = json.Unmarshal([]byte(jsonFile), &ListCharacter)
-
+	data := CharacterNodes{}
+	err = json.NewDecoder(jsonFile).Decode(&data)
+	for i := 0; i < len(data.CharacterNodes); i++ {
+		fmt.Println("Name: ", data.CharacterNodes[i].Name)
+		fmt.Println("Status: ", data.CharacterNodes[i].Status)
+	}
 	http.Handle("/foo", &fooHandler{Message: "hello World"})
 	http.HandleFunc("/bar", barHandler)
 	http.ListenAndServe(":5000", nil)
