@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+var data CharacterNodes
+
 type CharacterNodes struct {
 	CharacterNodes []Character `json:"results"`
 }
@@ -37,39 +39,9 @@ type Character struct {
 	Created time.Time `json:"created"`
 }
 
-func characterReader() CharacterNodes {
-
-	jsonFile, err := os.Open("data/rickandmortycharacter.json")
-
-	// if we os.Open returns an error then handle it
-	if err != nil {
-		fmt.Println(err)
-	}
-	data := CharacterNodes{}
-	err = json.NewDecoder(jsonFile).Decode(&data)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer jsonFile.Close()
-	return data
-}
-
-type fooHandler struct {
-	Message string
-}
-
-func (f *fooHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte(f.Message))
-}
-
-func barHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("bar called"))
-}
-
 func charactersHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		data := characterReader()
 		_characterJson, err := json.MarshalIndent(data.CharacterNodes, "", "    ")
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -129,7 +101,6 @@ func characterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func findCharacterByID(id int) (*Character, int) {
-	data := characterReader()
 	if len(data.CharacterNodes) >= id {
 		return &data.CharacterNodes[id-1], id
 	}
@@ -138,11 +109,22 @@ func findCharacterByID(id int) (*Character, int) {
 
 func main() {
 
-	http.Handle("/foo", &fooHandler{Message: "hello World"})
-	http.HandleFunc("/bar", barHandler)
+	jsonFile, err := os.Open("data/rickandmortycharacter.json")
+
+	// if we os.Open returns an error then handle it
+	if err != nil {
+		fmt.Println(err)
+	}
+	// JSON File in Data Global Variable
+	err = json.NewDecoder(jsonFile).Decode(&data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	http.HandleFunc("/character", charactersHandler)
 	http.HandleFunc("/character/", characterHandler)
 
 	http.ListenAndServe(":5000", nil)
 	// defer the closing of our jsonFile so that we can parse it later on
+	defer jsonFile.Close()
 }
