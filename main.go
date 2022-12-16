@@ -94,6 +94,9 @@ func characterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		character = &updatedCharacter
+		data.CharacterNodes[charID-1] = *character
+		w.WriteHeader(http.StatusOK)
+		return
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
