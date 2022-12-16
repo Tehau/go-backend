@@ -100,7 +100,6 @@ func characterHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
-
 }
 
 func findCharacterByID(id int) (*Character, int) {
@@ -108,6 +107,15 @@ func findCharacterByID(id int) (*Character, int) {
 		return &data.CharacterNodes[id-1], id
 	}
 	return nil, 0
+}
+
+func middlewareHandler(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("before handler; middleware start")
+		start := time.Now()
+		handler.ServeHTTP(w, r)
+		fmt.Printf("middleware finished; %s", time.Since(start))
+	})
 }
 
 func main() {
@@ -124,10 +132,22 @@ func main() {
 		log.Fatal(err)
 	}
 
-	http.HandleFunc("/character", charactersHandler)
-	http.HandleFunc("/character/", characterHandler)
+	characterListHandler := http.HandlerFunc(charactersHandler)
+	characterItemHandler := http.HandlerFunc(characterHandler)
 
-	http.ListenAndServe(":5000", nil)
+	http.Handle("/character", middlewareHandler(characterListHandler))
+	http.Handle("/character/", middlewareHandler(characterItemHandler))
+
+	err = http.ListenAndServe(":5000", nil)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	// defer the closing of our jsonFile so that we can parse it later on
-	defer jsonFile.Close()
+	defer func(jsonFile *os.File) {
+		err := jsonFile.Close()
+		if err != nil {
+
+		}
+	}(jsonFile)
 }
