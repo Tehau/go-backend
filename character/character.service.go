@@ -4,7 +4,6 @@ import (
 	"backend/cors"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"io"
 	"log"
 	"net/http"
@@ -14,13 +13,11 @@ import (
 
 const characterBasePath = "character"
 
-func SetupRoutes(apiBasePath string, r *mux.Router) {
+func SetupRoutes(apiBasePath string) {
 	characterListHandler := http.HandlerFunc(charactersHandler)
 	characterItemHandler := http.HandlerFunc(characterHandler)
-	//http.Handle(fmt.Sprintf("%s/%s", apiBasePath, characterBasePath), cors.Middleware(characterListHandler))
-	//http.Handle(fmt.Sprintf("%s/%s/", apiBasePath, characterBasePath), cors.Middleware(characterItemHandler))
-	r.Handle(fmt.Sprintf("%s/%s", apiBasePath, characterBasePath), cors.Middleware(characterListHandler))
-	r.Handle(fmt.Sprintf("%s/%s/{id:[0-9]+}", apiBasePath, characterBasePath), cors.Middleware(characterItemHandler))
+	http.Handle(fmt.Sprintf("%s/%s", apiBasePath, characterBasePath), cors.Middleware(characterListHandler))
+	http.Handle(fmt.Sprintf("%s/%s/", apiBasePath, characterBasePath), cors.Middleware(characterItemHandler))
 }
 
 func charactersHandler(w http.ResponseWriter, r *http.Request) {
@@ -45,15 +42,6 @@ func characterHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	vars := mux.Vars(r)
-
-	// with package : gorilla/mux
-	charID, err = strconv.Atoi(vars["id"])
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	character := getCharacter(charID)
 
 	switch r.Method {
