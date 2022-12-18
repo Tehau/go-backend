@@ -51,7 +51,7 @@ func init() {
 }
 
 func loadCharacterMap() (map[int]Character, error) {
-	filePath := "src/data/rickandmortycharacter.json"
+	filePath := "data/rickandmortycharacter.json"
 
 	_, err := os.Stat(filePath)
 
