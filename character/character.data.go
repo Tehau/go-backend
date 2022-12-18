@@ -77,11 +77,6 @@ func loadCharacterMap() (map[int]Character, error) {
 		charMap[data.CharacterNodes[i].Id] = data.CharacterNodes[i]
 	}
 
-	// sort the slice of key-value pairs by value in descending order
-	//sort.SliceStable(charMap, func(i, j int) bool {
-	//	return charMap[i].Id < charMap[j].Id
-	//})
-
 	// defer the closing of our jsonFile so that we can parse it later on
 	defer func(jsonFile *os.File) {
 		err := jsonFile.Close()

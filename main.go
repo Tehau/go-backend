@@ -9,5 +9,8 @@ const apiBasePath = "/api/v1"
 
 func main() {
 	character.SetupRoutes(apiBasePath)
-	http.ListenAndServe(":5000", nil)
+	err := http.ListenAndServe(":5000", nil)
+	if err != nil {
+		return
+	}
 }
