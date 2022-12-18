@@ -46,6 +46,7 @@ func characterHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
+		log.Printf("Get char %d\n", charID)
 		_characterJson, err := json.MarshalIndent(character, "", "    ")
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -62,19 +63,23 @@ func characterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		err = json.Unmarshal(bodyBytes, &updatedCharacter)
 		if err != nil {
+			log.Fatalln(err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		if updatedCharacter.Id != charID {
+			log.Fatalln("ID Not the same")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		character = &updatedCharacter
 		_, err = addOrUpdateCharacter(*character)
 		if err != nil {
+			log.Fatalln(err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+		log.Printf("Update char %d\n", charID)
 		w.WriteHeader(http.StatusOK)
 		return
 	case http.MethodDelete:

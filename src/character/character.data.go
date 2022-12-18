@@ -41,17 +41,17 @@ type Character struct {
 }
 
 func init() {
-	//fmt.Println("Loading data...")
+	log.Println("Loading data...")
 	charMap, err := loadCharacterMap()
 	characterMap.m = charMap
 	if err != nil {
 		log.Fatal(err)
 	}
-	//fmt.Printf("%d characters loaded...\n", len(characterMap.m))
+	log.Printf("%d characters loaded...\n", len(characterMap.m))
 }
 
 func loadCharacterMap() (map[int]Character, error) {
-	filePath := "data/rickandmortycharacter.json"
+	filePath := "src/data/rickandmortycharacter.json"
 
 	_, err := os.Stat(filePath)
 
@@ -59,17 +59,17 @@ func loadCharacterMap() (map[int]Character, error) {
 		return nil, fmt.Errorf("file [%s] doest not exist", filePath)
 	}
 
-	jsonFile, err := os.Open("data/rickandmortycharacter.json")
+	jsonFile, err := os.Open(filePath)
 
 	// if we os.Open returns an error then handle it
 	if err != nil {
-		fmt.Println(err)
+		log.Fatalln(err)
 	}
 	data := CharacterNodes{}
 	// JSON File in Data Global Variable
 	err = json.NewDecoder(jsonFile).Decode(&data)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
 	charMap := make(map[int]Character, len(data.CharacterNodes))
